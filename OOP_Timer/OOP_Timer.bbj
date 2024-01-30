@@ -1,0 +1,71 @@
+
+
+
+class public CountDownTimer
+    REM 'Public fields'
+    REM ==================================================
+    
+    field public BBjNumber hours!
+    field public BBjNumber minutes!
+    field public BBjNumber seconds!
+    field public BBjNumber hoursRemaining!
+    field public BBjNumber minutesRemaining!
+    field public BBjNumber secondsRemaining!
+    field public BBjNumber totalTime!
+    field public BBjNumber timeRemaining!
+    field public BBjNumber currentTime!
+    field public BBjNumber futureTime!
+    field public BBjNumber startTime!
+    
+    
+    REM 'constructors'
+    REM ==================================================
+    rem /** Timer's constructor which receives 3 parameters - hours, minutes, seconds
+    rem  * @param hours!                Amount of hours to be set on timer
+    rem  * @param minutes!              Amount of minutes to be set on timer
+    rem  * @param seconds!              Amount of seconds to be set on timer
+    rem  */
+    
+    method public void Timer(BBjNumber hours!, BBjNumber minutes!, BBjNumber seconds!)
+        #hours! = hours!
+        #minutes! = minutes!
+        #seconds!= seconds!
+    methodend
+    
+    method public void MSConversion(BBjNumber hours!, BBjNumber minutes!, BBjNumber seconds!)
+        #hoursRemaining! = hours! * 3600000
+        #minutesRemaining! = minutes! * 60000 
+        #secondsRemaining! = seconds! * 1000
+    methodend
+    
+    method public void setStartTime()
+        #startTime!= TIM
+    methodend
+    
+    method public void setTimes()
+        #totalTime! = #hoursRemaining! + #minutesRemaining! + #secondsRemaining!
+        #timeRemaining! = #totalTime!
+        #futureTime!= #startTime! + #totalTime! 
+    methodend
+
+    REM 'Setters'
+    REM ==================================================
+    rem /** Set remaining time
+
+     
+    REM 'Getters'
+    REM ==================================================
+    
+    REM     get input values
+    REM     get current time
+    REM     calculate total time 
+    REM     calculate time remaining
+    REM     set input values
+    REM     start timer
+    REM     stop timer
+    REM     cancel timer  
+      
+    REM     method public 
+    REM     methodend
+    
+classend
