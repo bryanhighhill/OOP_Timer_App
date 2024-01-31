@@ -26,15 +26,15 @@
 	color: rgb(179, 177, 177);
 	font-size: 45px;
 	width: 200px;
+	text-align: center !important;
 }
 
-.input-label {
+.input-spinner .BBjControl::part(label) {
 	color: white;
 	font-size: 20px;
 	font-weight: 600;
 	padding-left: 10px;
 	padding-right: 10px;
-	text-align: center !important;
 }
 
 

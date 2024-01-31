@@ -48,18 +48,22 @@ class public TimerApp
 
 
     REM 'Constructors'
-    method public void TimerApp()
+REM     method public void TimerApp()
     
         rem Instatiate WebManager and inject CSS
-        #webManager! = BBjAPI().getWebManager()
-        css! = java.nio.file.Files.readAllBytes(java.nio.file.Path.of(dsk("")+dir("")+"stylesheet.css"))
-        #webManager!.injectStyle(css!, 0, "name=stylesheet_css")
+REM         #webManager! = BBjAPI().getWebManager()
+REM         css! = java.nio.file.Files.readAllBytes(java.nio.file.Path.of(dsk("")+dir("")+"stylesheet.css"))
+REM         #webManager!.injectStyle(css!, 0, "name=stylesheet_css")
 
-    methodend    
+REM     methodend    
     
     
     REM 'Run timer app'
     method public void run()
+    
+        #webManager! = BBjAPI().getWebManager()
+        css! = java.nio.file.Files.readAllBytes(java.nio.file.Path.of(dsk("")+dir("")+"stylesheet.css"))
+        #webManager!.injectStyle(css!, 0, "name=stylesheet_css")
     
         rem Create UI
         #sysgui! = BBjAPI().openSysGui("X0")
