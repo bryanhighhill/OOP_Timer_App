@@ -55,15 +55,7 @@ class public TimerApp
     field protected BBjNumber           initialCountDown! = 1
 
 
-    REM 'Constructors'
-REM     method public void TimerApp()
-    
-        rem Instatiate WebManager and inject CSS
-REM         #webManager! = BBjAPI().getWebManager()
-REM         css! = java.nio.file.Files.readAllBytes(java.nio.file.Path.of(dsk("")+dir("")+"stylesheet.css"))
-REM         #webManager!.injectStyle(css!, 0, "name=stylesheet_css")
 
-REM     methodend    
     
     
     REM 'Run timer app'
@@ -195,35 +187,19 @@ REM     methodend
 :           "}")
             
             #winClockFace! = #winTimerColorIndicator!.addChildWindow("", $00108800$, #sysgui!.getAvailableContext())
-            #winClockFace!.addClass("clock-face")
+            #winClockFace!.addClass("clock-face")     
             
-            
-REM             if (#hours! > 0) then #timeRemainingString! = STR(#hours!: "00") + " : " + STR(#minutes!: "00") + " : " + STR(#seconds!: "00")
-REM             if (#hours! = 0) AND (#minutes! > 0) then #timeRemainingString! = STR(#minutes!: "00") + " : " + STR(#seconds!: "00")
-REM             if (#hours! = 0) AND (#minutes! = 0) AND (#seconds! >= 0) then #timeRemainingString! = " : " + STR(#seconds!: "00")         
-REM     
-REM             #winTimeIndicator! = #winClockFace!.addChildWindow("", $00108800$, #sysgui!.getAvailableContext())
-REM             #winTimeIndicator!.addClass("time-indicator-window")
-REM             #timeDisplay! = #winTimeIndicator!.addStaticText(#timeRemainingString!)
-REM             #timeDisplay!.addClass("time-indicator")
-REM             
-            
+            #winTimeIndicator! = #winClockFace!.addChildWindow("", $00108800$, #sysgui!.getAvailableContext())
+            #winTimeIndicator!.addClass("time-indicator-window")
             
             #convertTime(#hours!, #minutes!, #seconds!)
             REM 'set one second timer to update time remaining'
-REM             bbj!.createTimer(oneSecTimer, 1, calculateTime(#hours!, #minutes!, #seconds!)
         endif
     methodend
     
     
     method public void convertTime(BBjNumber hours!, BBjNumber minutes!, BBjNumber seconds!)
-REM         if (#winTimeCreated! = 1) then #winTimeIndicator!.destroy()
-REM         #winTimeCreated! = 0
-        
-REM         #hours! = this!.hours!
-REM         #minutes! = this!.minutes!
-REM         #seconds!= this!.seconds!
-
+REM         BjAPI().createTimer(oneSecTimer, 1, #convertTime(hours!, minutes!, seconds!))
         #hours! = hours!
         #minutes! = minutes!
         #seconds! = seconds!
@@ -234,12 +210,10 @@ REM         #seconds!= this!.seconds!
         #remainingTimeInMs! = #hoursInMs! + #minutesInMs! + #secondsInMs!
         
         #calculateTime(#remainingTimeInMs!)
-        
     methodend
     
     
-    method public void calculateTime(BBjNumber remainingTimeInMs!)
-        
+    method public void calculateTime(BBjNumber remainingTimeInMs!) 
         if (#initialCountDown! = 0) then 
             #remainingTimeInMs! = remainingTimeInMs! - 1000
         else
@@ -271,21 +245,28 @@ REM         #seconds!= this!.seconds!
     methodend
     
     
-    method public void displayTimeRemaining(BBjNumber hoursRemaining!, BBjNumber minutesRemaining!, BBjNumber secondsRemaining!)
-        #hoursRemaining!= hoursRemaining!
-        #minutesRemaining! = minutesRemaining!
-        #secondsRemaining! = secondsRemaining!
+    method public void displayTimeRemaining(BBjNumber hours!, BBjNumber minutes!, BBjNumber seconds!)
+        if (#winTimeCreated! = 1) then 
+            #timeDisplay!.setVisible(0)
+            #winTimeCreated! = 0
+        endif
+        
+        #hours!= hours!
+        #minutes! = minutes!
+        #seconds! = seconds!
         
         REM 'format time for clock display'
-        if (#hoursRemaining! > 0) then #timeRemainingString! = STR(#hoursRemaining!: "00") + " : " + STR(#minutesRemaining!: "00") + " : " + STR(#secondsRemaining!: "00")
-        if (#hoursRemaining! = 0) AND (#minutesRemaining! > 0) then #timeRemainingString! = STR(#minutesRemaining!: "00") + " : " + STR(#secondsRemaining!: "00")
-        if (#hoursRemaining! = 0) AND (#minutesRemaining! = 0) AND (#secondsRemaining! >= 0) then #timeRemainingString! = " : " + STR(#secondsRemaining!: "00")         
+        if (#hours! > 0) then #timeRemainingString! = STR(#hours!: "00") + " : " + STR(#minutes!: "00") + " : " + STR(#seconds!: "00")
+        if (#hours! = 0) AND (#minutes! > 0) then #timeRemainingString! = STR(#minutes!: "00") + " : " + STR(#seconds!: "00")
+        if (#hours! = 0) AND (#minutes! = 0) AND (#seconds! >= 0) then #timeRemainingString! = " : " + STR(#seconds!: "00")         
     
-        #winTimeIndicator! = #winClockFace!.addChildWindow("", $00108800$, #sysgui!.getAvailableContext())
-        #winTimeIndicator!.addClass("time-indicator-window")
         #timeDisplay! = #winTimeIndicator!.addStaticText(#timeRemainingString!)
         #timeDisplay!.addClass("time-indicator")
-REM     timeWindowCreated! = 1
+        #winTimeCreated! = 1
+        
+        Thread.sleep(1000)
+        
+        #convertTime(#hours!, #minutes!, #seconds!)
     methodend
     
     
@@ -343,5 +324,7 @@ REM         display time in proper format - hh:mm:ss
 REM     
     classend
     
+    
+    use java.lang.Thread
     
     
