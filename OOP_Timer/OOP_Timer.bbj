@@ -51,6 +51,8 @@ class public TimerApp
     field protected BBjControl          noInputMessage!
     field protected BBjNumber           winTimeCreated! = 0
     field protected BBjString           timeRemainingString!
+    field protected BBjControl          timeDisplay!
+    field protected BBjNumber           initialCountDown! = 1
 
 
     REM 'Constructors'
@@ -128,7 +130,6 @@ REM     methodend
         #cancelBtn!.addClass("cancel-button")
         #cancelBtn!.setVisible(0)
 
-
         REM 'callbacks'
         #winMain!.setCallback(#winMain!.ON_CLOSE,"eoj")
         #startBtn!.setCallback(#startBtn!.ON_BUTTON_PUSH, #this!, "onStart")
@@ -155,7 +156,6 @@ REM     methodend
             #noInputMessage! = msgbox("No Time Selected", 0 + 48, "Start Timer Error")
             return
         else
-            REM     if (#startTime! = 0) then startTime! = TIM
             #startBtn!.setVisible(0)
             #pauseBtn!.setVisible(1)
             #cancelBtn!.setVisible(1)
@@ -197,16 +197,28 @@ REM     methodend
             #winClockFace! = #winTimerColorIndicator!.addChildWindow("", $00108800$, #sysgui!.getAvailableContext())
             #winClockFace!.addClass("clock-face")
             
-            #calculateTime(#hours!, #minutes!, #seconds!)
+            
+REM             if (#hours! > 0) then #timeRemainingString! = STR(#hours!: "00") + " : " + STR(#minutes!: "00") + " : " + STR(#seconds!: "00")
+REM             if (#hours! = 0) AND (#minutes! > 0) then #timeRemainingString! = STR(#minutes!: "00") + " : " + STR(#seconds!: "00")
+REM             if (#hours! = 0) AND (#minutes! = 0) AND (#seconds! >= 0) then #timeRemainingString! = " : " + STR(#seconds!: "00")         
+REM     
+REM             #winTimeIndicator! = #winClockFace!.addChildWindow("", $00108800$, #sysgui!.getAvailableContext())
+REM             #winTimeIndicator!.addClass("time-indicator-window")
+REM             #timeDisplay! = #winTimeIndicator!.addStaticText(#timeRemainingString!)
+REM             #timeDisplay!.addClass("time-indicator")
+REM             
+            
+            
+            #convertTime(#hours!, #minutes!, #seconds!)
             REM 'set one second timer to update time remaining'
 REM             bbj!.createTimer(oneSecTimer, 1, calculateTime(#hours!, #minutes!, #seconds!)
         endif
     methodend
     
     
-    method public void calculateTime(BBjNumber hours!, BBjNumber minutes!, BBjNumber seconds!)
-        if (#winTimeCreated! = 1) then #winTimeIndicator!.destroy()
-        #winTimeCreated! = 0
+    method public void convertTime(BBjNumber hours!, BBjNumber minutes!, BBjNumber seconds!)
+REM         if (#winTimeCreated! = 1) then #winTimeIndicator!.destroy()
+REM         #winTimeCreated! = 0
         
 REM         #hours! = this!.hours!
 REM         #minutes! = this!.minutes!
@@ -221,14 +233,61 @@ REM         #seconds!= this!.seconds!
         #secondsInMs! = #seconds! * 1000
         #remainingTimeInMs! = #hoursInMs! + #minutesInMs! + #secondsInMs!
         
-        REM 'format time for clock display'
-        if (#hours! > 0) then #timeRemainingString! = STR(#hours!: "00") + " : " + STR(#minutes!: "00") + " : " + STR(#seconds!: "00")
-        if (#hours! = 0) AND (#minutes! > 0) then #timeRemainingString! = STR(#minutes!: "00") + " : " + STR(#seconds!: "00")
-        if (#hours! = 0) AND (#minutes! = 0) AND (#seconds! >= 0) then #timeRemainingString! = " : " + STR(#seconds!: "00")
-        
-        i = msgbox("time remaining formatted: " + #timeRemainingString! + "with total time in MS: " + STR(#remainingTimeInMs!))
+        #calculateTime(#remainingTimeInMs!)
         
     methodend
+    
+    
+    method public void calculateTime(BBjNumber remainingTimeInMs!)
+        
+        if (#initialCountDown! = 0) then 
+            #remainingTimeInMs! = remainingTimeInMs! - 1000
+        else
+            #remainingTimeInMs!= remainingTimeInMs!
+            #initialCountDown! = 0
+        endif
+      
+        #seconds! = INT(#remainingTimeInMs! / 1000)
+        #minutes! = INT(#seconds! / 60)
+        #hours! = INT(#minutes! / 60)
+          
+        if (#seconds! >= 60) then 
+            #seconds! = MOD(#seconds!, 60)
+        else
+            #seconds! = #seconds!
+        endif
+          
+        if (#minutes! >= 60) then 
+            #minutes! = MOD(#minutes!, 60)
+        else
+            #minutes! = #minutes!
+        endif
+          
+        #hoursInput!.setValue(#hours!)
+        #minutesInput!.setValue(#minutes!)
+        #secondsInput!.setValue(#seconds!)
+
+        #displayTimeRemaining(#hours!, #minutes!, #seconds!)
+    methodend
+    
+    
+    method public void displayTimeRemaining(BBjNumber hoursRemaining!, BBjNumber minutesRemaining!, BBjNumber secondsRemaining!)
+        #hoursRemaining!= hoursRemaining!
+        #minutesRemaining! = minutesRemaining!
+        #secondsRemaining! = secondsRemaining!
+        
+        REM 'format time for clock display'
+        if (#hoursRemaining! > 0) then #timeRemainingString! = STR(#hoursRemaining!: "00") + " : " + STR(#minutesRemaining!: "00") + " : " + STR(#secondsRemaining!: "00")
+        if (#hoursRemaining! = 0) AND (#minutesRemaining! > 0) then #timeRemainingString! = STR(#minutesRemaining!: "00") + " : " + STR(#secondsRemaining!: "00")
+        if (#hoursRemaining! = 0) AND (#minutesRemaining! = 0) AND (#secondsRemaining! >= 0) then #timeRemainingString! = " : " + STR(#secondsRemaining!: "00")         
+    
+        #winTimeIndicator! = #winClockFace!.addChildWindow("", $00108800$, #sysgui!.getAvailableContext())
+        #winTimeIndicator!.addClass("time-indicator-window")
+        #timeDisplay! = #winTimeIndicator!.addStaticText(#timeRemainingString!)
+        #timeDisplay!.addClass("time-indicator")
+REM     timeWindowCreated! = 1
+    methodend
+    
     
     
        
