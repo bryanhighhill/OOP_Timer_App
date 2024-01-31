@@ -13,7 +13,7 @@ class public TimerApp
     field protected BBjChildWindow      winInput!
     field protected BBjChildWindow      winBtn!
     field protected BBjChildWindow      winClock!
-    field protected BBjChildWindow      winTimeColorIndicator!
+    field protected BBjChildWindow      winTimerColorIndicator!
     field protected BBjChildWindow      winClockRight!
     field protected BBjChildWindow      winClockLeft!
     field protected BBjChildWindow      winClockFace!
@@ -26,6 +26,13 @@ class public TimerApp
     field protected BBjNumber           hoursRemaining!
     field protected BBjNumber           minutesRemaining!
     field protected BBjNumber           secondsRemaining!
+    field protected BBjNumber           initialHours!
+    field protected BBjNumber           initialMinutes!
+    field protected BBjNumber           initialSeconds!
+    field protected BBjNumber           totalTimeInSec!
+    field protected BBjNumber           halfTime!
+    field protected BBjString           totalTimeString!
+    field protected BBjString           halfTimeString! 
     
     REM 'Buttons & Inputs'
     field protected BBjInputNSpinner    hoursInput!
@@ -35,6 +42,9 @@ class public TimerApp
     field protected BBjButton           pauseBtn!
     field protected BBjButton           resumeBtn!
     field protected BBjButton           cancelBtn!
+    
+    REM 'MSGBOXES'
+    field protected BBjControl           noInputMessage!
 
 
     REM 'Constructors'
@@ -43,7 +53,7 @@ class public TimerApp
         rem Instatiate WebManager and inject CSS
         #webManager! = BBjAPI().getWebManager()
         css! = java.nio.file.Files.readAllBytes(java.nio.file.Path.of(dsk("")+dir("")+"stylesheet.css"))
-        #webManager!.injectStyle(css!, 0, "name=timerapp_css")
+        #webManager!.injectStyle(css!, 0, "name=stylesheet_css")
 
     methodend    
     
@@ -65,13 +75,13 @@ class public TimerApp
         REM 'main window'
         title$ = "DWC Countdown Timer"
         #winMain! = #sysgui!.addWindow(title$, $01111000$)
-        #winMain!.addClass("window")
+        #winMain!.addClass("winMain")
         
         REM 'child windows'
         #winInput! = #winMain!.addChildWindow("", $00108800$, #sysgui!.getAvailableContext())
-        #winInput!.addClass("input-bg")
+        #winInput!.addClass("winInput")
         #winBtn! = #winMain!.addChildWindow("", $00108800$, #sysgui!.getAvailableContext())
-        #winBtn!.addClass("button-window")
+        #winBtn!.addClass("winBtn")
         
         REM 'inputs'
         #hoursInput! = #winInput!.addInputNSpinner($0020$, "##", 0, 23)
@@ -121,75 +131,80 @@ class public TimerApp
     
         REM 'START TIMER METHOD'
         method public void onStart(BBjButtonPushEvent e!)
-REM             hours! = hoursInput!.getValue()
-REM             minutes! = minutesInput!.getValue()
-REM             seconds! = secondsInput!.getValue()
-REM     
-REM             REM 'variables used for repeat timer function'
-REM             initialHours! = hours!
-REM             initialMinutes! = minutes!
-REM             initialSeconds! = seconds!
-REM             
-REM             REM 'check to see if user inputted any time else start timer'
-REM             if (hours! = 0) AND (minutes! = 0) AND (seconds! = 0) then
-REM                 noInputMessage! = msgbox("No Time Selected", 0 + 48, "Start Timer Error")
-REM                 return
-REM             else
-REM                 if (startTime! = 0) then startTime! = TIM
-REM                 startButton!.setVisible(0)
-REM                 pauseButton!.setVisible(1)
-REM                 cancelButton!.setVisible(1)
-REM                 inputBG!.setVisible(0)
-REM                 
-REM                 REM 'time variables for clock css animations'
-REM                 totalTimeInSec! = (hours! *  3600) + (minutes! * 60) + (seconds!)
-REM                 halfTime! = totalTimeInSec! / 2
-REM                 totalTimeString! = STR(totalTimeInSec!)
-REM                 halfTimeString! = STR(halfTime!) 
-REM         
-REM                 REM 'UI'
-REM                 clockContainer! = window!.addChildWindow("", $00108800$, sysgui!.getAvailableContext())
-REM                 clockContainer!.addClass("clock-container")
-REM             
-REM                 timerColorIndicator! = clockContainer!.addChildWindow("", $00108800$, sysgui!.getAvailableContext())
-REM                 timerColorIndicator!.addClass("timer-color-indicator")
-REM             
-REM                 clockRight! = timerColorIndicator!.addChildWindow("", $00108800$, sysgui!.getAvailableContext())
-REM                 clockRight!.addClass("clock-right")
-REM                 clockRight!.addClass("clock-rotate-end")
-REM                 web!.injectStyle(".clock-rotate-end { "+
-REM         :           "animation-delay: " + halfTimeString! + "s !important;"+
-REM         :           "animation-duration: " + halfTimeString! + "s !important;"+
-REM         :        "}")
-REM             
-REM                 clockLeft! = timerColorIndicator!.addChildWindow("", $00108800$, sysgui!.getAvailableContext())
-REM                 clockLeft!.setBorderColor(transparent!)
-REM                 clockLeft!.addClass("clock-left")
-REM                 clockLeft!.addClass("clock-rotate-start")
-REM                 
-REM                 web!.injectStyle(".clock-rotate-start { "+
-REM         :           "animation-delay: 0s, " + halfTimeString! + "s !important;"+
-REM         :           "animation-duration: " + halfTimeString! + "s, 0s !important;"+
-REM         :       "}")
-REM                 
-REM                 clockFace! = timerColorIndicator!.addChildWindow("", $00108800$, sysgui!.getAvailableContext())
-REM                 clockFace!.addClass("clock-face")
-REM                 
-REM                 REM 'set one second timer to update time remaining'
+            #hours! = #hoursInput!.getValue()
+            #minutes! = #minutesInput!.getValue()
+            #seconds! = #secondsInput!.getValue()
+    
+            REM 'variables used for repeat timer function'
+            #initialHours! = #hours!
+            #initialMinutes! = #minutes!
+            #initialSeconds! = #seconds!
+            
+            REM 'check to see if user inputted any time then start timer'
+            if (#hours! = 0) AND (#minutes! = 0) AND (#seconds! = 0) then
+                #noInputMessage! = msgbox("No Time Selected", 0 + 48, "Start Timer Error")
+                return
+            else
+REM                 if (#startTime! = 0) then startTime! = TIM
+                #startBtn!.setVisible(0)
+                #pauseBtn!.setVisible(1)
+                #cancelBtn!.setVisible(1)
+                #winInput!.setVisible(0)
+                
+                REM 'time variables for clock css animations'
+                #totalTimeInSec! = (#hours! *  3600) + (#minutes! * 60) + (#seconds!)
+                #halfTime! = #totalTimeInSec! / 2
+                #totalTimeString! = STR(#totalTimeInSec!)
+                #halfTimeString! = STR(#halfTime!) 
+        
+                REM 'UI'
+                #winClock! = #winMain!.addChildWindow("", $00108800$, #sysgui!.getAvailableContext())
+                #winClock!.addClass("clock-container")
+            
+                #winTimerColorIndicator! = #winClock!.addChildWindow("", $00108800$, #sysgui!.getAvailableContext())
+                #winTimerColorIndicator!.addClass("timer-color-indicator")
+            
+                #winClockRight! = #winTimerColorIndicator!.addChildWindow("", $00108800$, #sysgui!.getAvailableContext())
+                #winClockRight!.addClass("clock-right")
+                #winClockRight!.addClass("clock-rotate-end")
+                
+                #webManager! = BBjAPI().getWebManager()
+                #webManager!.injectStyle(".clock-rotate-end { "+
+:                  "animation-delay: " + #halfTimeString! + "s !important;"+
+:                  "animation-duration: " + #halfTimeString! + "s !important;"+
+:               "}")
+            
+                #winClockLeft! = #winTimerColorIndicator!.addChildWindow("", $00108800$, #sysgui!.getAvailableContext())
+                #winClockLeft!.setBorderColor(#sysgui!.makeColor(250, 250, 250, 0))
+                #winClockLeft!.addClass("clock-left")
+                #winClockLeft!.addClass("clock-rotate-start")
+                
+                #webManager!.injectStyle(".clock-rotate-start { "+
+:                   "animation-delay: 0s, " + #halfTimeString! + "s !important;"+
+:                   "animation-duration: " + #halfTimeString! + "s, 0s !important;"+
+:               "}")
+                
+                #winClockFace! = #winTimerColorIndicator!.addChildWindow("", $00108800$, #sysgui!.getAvailableContext())
+                #winClockFace!.addClass("clock-face")
+                
+                REM 'set one second timer to update time remaining'
 REM                 bbj!.createTimer(oneSecTimer, 1, "calculateTime")
-REM             endif
+            endif
         methodend
         
         REM 'RESUME TIMER METHOD'
         method public void onResume(BBjButtonPushEvent e!)
+            
         methodend
         
         REM 'PAUSE TIMER METHOD'
         method public void onPause(BBjButtonPushEvent e!)
+            i = msgbox("you clicked pause timer")
         methodend
         
         REM 'CANCEL TIMER METHOD'
         method public void onCancel(BBjButtonPushEvent e!)
+            i = msgbox("you clicked cancel timer")
         methodend
     
         REM 'WINDOW CLOSE METHOD'
