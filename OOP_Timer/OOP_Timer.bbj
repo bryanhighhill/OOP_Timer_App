@@ -23,7 +23,10 @@ class public TimerApp
     field protected BBjNumber           hours!
     field protected BBjNumber           minutes!
     field protected BBjNumber           seconds!
-    field protected BBjNumber           remainingTimeInMS!
+    field protected BBjNumber           hoursInMs!
+    field protected BBjNumber           minutesInMs!
+    field protected BBjNumber           secondsInMs!    
+    field protected BBjNumber           remainingTimeInMs!
     field protected BBjNumber           hoursRemaining!
     field protected BBjNumber           minutesRemaining!
     field protected BBjNumber           secondsRemaining!
@@ -47,6 +50,7 @@ class public TimerApp
     REM 'OTHER'
     field protected BBjControl          noInputMessage!
     field protected BBjNumber           winTimeCreated! = 0
+    field protected BBjString           timeRemainingString!
 
 
     REM 'Constructors'
@@ -204,9 +208,26 @@ REM             bbj!.createTimer(oneSecTimer, 1, calculateTime(#hours!, #minutes
         if (#winTimeCreated! = 1) then #winTimeIndicator!.destroy()
         #winTimeCreated! = 0
         
-        i = msgbox("in calculate time with: " + STR(hours!) + ":" + STR(minutes!) + ":" + STR(seconds!))
+REM         #hours! = this!.hours!
+REM         #minutes! = this!.minutes!
+REM         #seconds!= this!.seconds!
+
+        #hours! = hours!
+        #minutes! = minutes!
+        #seconds! = seconds!
         
-    
+        #hoursInMs! = #hours! * 3600000
+        #minutesInMs! = #minutes! * 60000
+        #secondsInMs! = #seconds! * 1000
+        #remainingTimeInMs! = #hoursInMs! + #minutesInMs! + #secondsInMs!
+        
+        REM 'format time for clock display'
+        if (#hours! > 0) then #timeRemainingString! = STR(#hours!: "00") + " : " + STR(#minutes!: "00") + " : " + STR(#seconds!: "00")
+        if (#hours! = 0) AND (#minutes! > 0) then #timeRemainingString! = STR(#minutes!: "00") + " : " + STR(#seconds!: "00")
+        if (#hours! = 0) AND (#minutes! = 0) AND (#seconds! >= 0) then #timeRemainingString! = " : " + STR(#seconds!: "00")
+        
+        i = msgbox("time remaining formatted: " + #timeRemainingString! + "with total time in MS: " + STR(#remainingTimeInMs!))
+        
     methodend
     
     
